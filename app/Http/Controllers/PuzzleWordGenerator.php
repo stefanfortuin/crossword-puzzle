@@ -25,6 +25,10 @@ class PuzzleWordGenerator extends Controller
 
 	}
 
+	public function crossword(){
+		return Word::count();
+	}
+
 	private function getRandomWord()
 	{
 		$file = file(__DIR__ . "/words.txt");

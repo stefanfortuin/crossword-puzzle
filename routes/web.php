@@ -18,3 +18,9 @@ use App\Http\Controllers\PuzzleWordGenerator;
 Route::get('/words', function (){
 	return Word::count();
 });
+
+Route::get('/random/{amount}', function ($amount){
+	return Word::inRandomOrder()->limit($amount)->get();
+});
+
+Route::get('/crossword', [PuzzleWordGenerator::class, 'crossword']);
