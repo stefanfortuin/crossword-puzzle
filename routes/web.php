@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\PuzzleWordGenerator;
+use App\Models\Word;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PuzzleWordGenerator;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,3 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/words', function (){
+	return Word::count();
+});
