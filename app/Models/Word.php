@@ -11,7 +11,22 @@ class Word extends Model
 
 	protected $guarded = [];
 
+	protected $hidden = [
+		'created_at',
+		'updated_at'
+	];
+
+	protected $appends = [
+		'synonym_amount',
+	];
+
 	protected $casts = [
 		'synonyms' => 'array',
 	];
+
+	public function getSynonymAmountAttribute()
+	{
+		return count($this->synonyms);
+	}
+
 }

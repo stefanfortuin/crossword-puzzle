@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Word;
+use App\Http\Resources\WordResource;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PuzzleWordGenerator;
 
