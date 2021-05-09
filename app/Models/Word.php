@@ -18,15 +18,21 @@ class Word extends Model
 
 	protected $appends = [
 		'synonym_amount',
+		'longest_synonym'
 	];
 
 	protected $casts = [
-		'synonyms' => 'array',
+		'synonyms' => 'collection',
 	];
 
 	public function getSynonymAmountAttribute()
 	{
 		return count($this->synonyms);
+	}
+
+	public function getLongestSynonymAttribute()
+	{
+		return $this->synonyms->last()[0];
 	}
 
 }

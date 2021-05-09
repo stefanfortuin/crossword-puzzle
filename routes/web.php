@@ -24,4 +24,4 @@ Route::get('/random/{amount}', function ($amount){
 	return Word::inRandomOrder()->limit($amount)->get();
 });
 
-Route::get('/crossword', [PuzzleWordGenerator::class, 'crossword']);
+Route::get('/crossword/{amount}', [PuzzleWordGenerator::class, 'crossword']);

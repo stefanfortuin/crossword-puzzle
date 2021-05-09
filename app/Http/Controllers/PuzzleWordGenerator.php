@@ -25,13 +25,23 @@ class PuzzleWordGenerator extends Controller
 
 	}
 
-	public function crossword(){
-		return Word::count();
+	public function crossword($word_amount){
+		$words = Word::inRandomOrder()->limit($word_amount)->get();
+
+		$board =  $this->createBoard();
+		
+		return $board;
 	}
 
-	private function getRandomWord()
+	private function createBoard()
 	{
-		$file = file(__DIR__ . "/words.txt");
-		return $file[array_rand($file)];
+		$board = [];
+
+		for ($x=0; $x < 25; $x++) { 
+			for ($y=0; $y < 25; $y++) { 
+				$board[$x][$y] = 'x';
+			}
+		}
+		return $board;
 	}
 }
