@@ -21,7 +21,7 @@ Route::get('/word', function (Request $request) {
 	$length = $request->input('length');
 	$foundWord = null;
 
-	Word::inRandomOrder()->chunk(200, function ($words) use ($length, $lettersToCheck, &$foundWord) {
+	Word::inRandomOrder()->chunk(5000, function ($words) use ($length, $lettersToCheck, &$foundWord) {
 		foreach ($words as $word) {
 			foreach ($word->synonyms as $lengths) {
 				foreach ($lengths as $synonym) {
