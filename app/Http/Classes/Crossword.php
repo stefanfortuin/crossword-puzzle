@@ -3,6 +3,7 @@
 namespace App\Http\Classes;
 
 use App\Models\Word;
+use App\Http\Classes\WordBoard;
 
 class Crossword
 {
@@ -16,13 +17,9 @@ class Crossword
 	{
 		$this->rows = $rows;
 		$this->cols = $cols;
-		// $this->words = $this->generateWordObjects($words);
 		$this->createEmptyBoard();
-		// $this->fillFirstWord();
 
-		$foundWord = $this->findSynonymInDatabaseWithLettersAtPositionsWithLength([0 => "A", 3 => "E"], 8);
-		// if($foundWord != null)
-		// 	dd($foundWord);
+		$this->fillBoard();
 	}
 
 	private function placeWordAtPosition($x, $y, $word, $direction)
@@ -50,16 +47,54 @@ class Crossword
 		}
 	}
 
-	private function findSynonymInDatabaseWithLettersAtPositionsWithLength($lettersToCheck, $length)
+	private function fillBoard()
+	{
+		$firstWord = Word::inRandomOrder()->first();
+		$word = new WordBoard($firstWord);
+		$this->placeWordAtPosition(0,0,$word->longest_synonym, 'right');
+
+		for ($i=0; $i < $this->cols; $i++) { 
+			if($i % 2 == 0){
+				
+			}
+		}
+
+	}
+
+	private function getLettersAtPositionInCol($col)
+	{
+		$letters = collect();
+
+		for ($i=0; $i < $this->rows; $i++) { 
+			$letter = $this->board[$i][$col];
+			$letters->put($i, $letter);
+		}
+
+		return $letters;
+	}
+
+	private function getLettersAtPositionInRow($row)
+	{
+		$letters = collect();
+
+		for ($i=0; $i < $this->cols; $i++) { 
+			$letter = $this->board[$row][$i];
+			$letters->put($i, $letter);
+		}
+
+		return $letters;
+	}
+
+	private function findSynonymInDatabaseWithLettersAtPositionsWithLength($lettersToCheck, $length = null)
 	{
 		$lettersToCheck = collect($lettersToCheck);
 		$foundWord = null;
 
-		Word::inRandomOrder()->chunk(200, function ($words) use ($length, $lettersToCheck, &$foundWord) {
+		Word::inRandomOrder()->chunk(5000, function ($words) use ($length, $lettersToCheck, &$foundWord) {
 			foreach ($words as $word) {
 				foreach ($word->synonyms as $lengths) {
 					foreach ($lengths as $synonym) {
-						if (strlen($synonym) != $length)
+						if ($length != null && strlen($synonym) != $length)
 							continue;
 
 						$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
@@ -67,7 +102,7 @@ class Crossword
 						});
 
 
-						if ($matched){
+						if ($matched) {
 							$foundWord = collect([
 								'id' => $word->id,
 								'word' => $word->word,

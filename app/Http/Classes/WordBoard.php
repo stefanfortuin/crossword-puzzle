@@ -2,7 +2,7 @@
 
 namespace App\Http\Classes;
 
-class Word
+class WordBoard
 {
     public $word;
     public $synonyms;
