@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Classes\Crossword;
 use App\Jobs\PuzzleWordJob;
 use App\Models\Word;
 use Illuminate\Http\Request;
@@ -28,20 +29,7 @@ class PuzzleWordGenerator extends Controller
 	public function crossword($word_amount){
 		$words = Word::inRandomOrder()->limit($word_amount)->get();
 
-		$board =  $this->createBoard();
-		
-		return $board;
-	}
-
-	private function createBoard()
-	{
-		$board = [];
-
-		for ($x=0; $x < 25; $x++) { 
-			for ($y=0; $y < 25; $y++) { 
-				$board[$x][$y] = 'x';
-			}
-		}
-		return $board;
+		$crossword = new Crossword(25, 25, $words);
+		return $crossword->board;
 	}
 }
