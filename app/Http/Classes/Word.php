@@ -7,8 +7,6 @@ class Word
     public $word;
     public $synonyms;
 
-    public $intersections;
-    public $startPoint;
     public $chosenSynonym;
 
     public $row;

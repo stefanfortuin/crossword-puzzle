@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Word;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get('/word', function (Request $request) {
+
+	$lettersToCheck = collect($request->input('letters_to_check'));
+	$length = $request->input('length');
+	$foundWord = null;
+
+	Word::inRandomOrder()->chunk(200, function ($words) use ($length, $lettersToCheck, &$foundWord) {
+		foreach ($words as $word) {
+			foreach ($word->synonyms as $lengths) {
+				foreach ($lengths as $synonym) {
+					if (strlen($synonym) != $length)
+						continue;
+
+					$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
+						return substr($synonym, $position, 1) == $letter;
+					});
+
+
+					if ($matched) {
+						$foundWord = collect([
+							'id' => $word->id,
+							'word' => $word->word,
+							'synonym' => $synonym,
+						]);
+						return false;
+					}
+				}
+			}
+		}
+	});
+
+	return $foundWord;
 });

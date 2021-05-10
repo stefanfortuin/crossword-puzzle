@@ -26,10 +26,10 @@ class PuzzleWordGenerator extends Controller
 
 	}
 
-	public function crossword($word_amount){
-		$words = Word::inRandomOrder()->limit($word_amount)->get();
+	public function crossword(){
+		// $words = Word::inRandomOrder()->limit($word_amount)->get();
 
-		$crossword = new Crossword(25, 25, $words);
+		$crossword = new Crossword(25, 25);
 		return $crossword->board;
 	}
 }
