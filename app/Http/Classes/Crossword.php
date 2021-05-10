@@ -15,7 +15,7 @@ class Crossword {
         $this->words = $this->generateWordObjects($words);
         $this->createEmptyBoard();
         foreach ($this->words as $word) {
-            $foundWord = $word->findSynonymWithLettersAtPositions(["0" => "A", "2" => "R"]);
+            $foundWord = $word->findSynonymWithLettersAtPositionsWithLength(8, ["0" => "A", "2" => "R"]);
             if($foundWord != null)
                 dd($foundWord);
         }

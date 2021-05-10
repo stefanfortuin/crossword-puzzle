@@ -23,12 +23,15 @@ class Word
         }
     }
 
-    public function findSynonymWithLettersAtPositions($lettersToCheck)
+    public function findSynonymWithLettersAtPositionsWithLength($maxLength, $lettersToCheck)
     {
         $lettersToCheck = collect($lettersToCheck);
 
         foreach ($this->synonyms as $length) {
             foreach ($length as $synonym) {
+                if(strlen($synonym) > $maxLength)
+                    continue;
+
                 $matched = $lettersToCheck->every(function($letter, $position) use ($synonym) {
                     return substr($synonym, $position, 1) == $letter;
                 });
