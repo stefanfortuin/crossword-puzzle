@@ -4,6 +4,7 @@ namespace App\Http\Classes;
 
 use App\Models\Word;
 use App\Http\Classes\WordBoard;
+use App\Models\Synonym;
 
 class Crossword
 {
@@ -51,21 +52,19 @@ class Crossword
 	{
 		$firstWord = Word::inRandomOrder()->first();
 		$word = new WordBoard($firstWord);
-		$this->placeWordAtPosition(0,0,$word->longest_synonym, 'right');
+		$this->placeWordAtPosition(0, 0, $word->longest_synonym, 'right');
 
-		for ($i=0; $i < $this->cols; $i++) { 
-			if($i % 2 == 0){
-				
+		for ($i = 0; $i < $this->cols; $i++) {
+			if ($i % 2 == 0) {
 			}
 		}
-
 	}
 
 	private function getLettersAtPositionInCol($col)
 	{
 		$letters = collect();
 
-		for ($i=0; $i < $this->rows; $i++) { 
+		for ($i = 0; $i < $this->rows; $i++) {
 			$letter = $this->board[$i][$col];
 			$letters->put($i, $letter);
 		}
@@ -77,7 +76,7 @@ class Crossword
 	{
 		$letters = collect();
 
-		for ($i=0; $i < $this->cols; $i++) { 
+		for ($i = 0; $i < $this->cols; $i++) {
 			$letter = $this->board[$row][$i];
 			$letters->put($i, $letter);
 		}
@@ -88,34 +87,30 @@ class Crossword
 	private function findSynonymInDatabaseWithLettersAtPositionsWithLength($lettersToCheck, $length = null)
 	{
 		$lettersToCheck = collect($lettersToCheck);
-		$foundWord = null;
+		$foundSynonym = null;
 
-		Word::inRandomOrder()->chunk(5000, function ($words) use ($length, $lettersToCheck, &$foundWord) {
-			foreach ($words as $word) {
-				foreach ($word->synonyms as $lengths) {
-					foreach ($lengths as $synonym) {
-						if ($length != null && strlen($synonym) != $length)
-							continue;
+		Synonym::inRandomOrder()->chunk(200, function ($synonyms) use ($length, $lettersToCheck, &$foundSynonym) {
+			foreach ($synonyms as $synonym) {
+				if ($length != null && strlen($synonym) != $length)
+					continue;
 
-						$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
-							return substr($synonym, $position, 1) == $letter;
-						});
+				$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
+					return substr($synonym, $position, 1) == $letter;
+				});
 
 
-						if ($matched) {
-							$foundWord = collect([
-								'id' => $word->id,
-								'word' => $word->word,
-								'synonym' => $synonym,
-							]);
-							return false;
-						}
-					}
+				if ($matched) {
+					$foundSynonym = collect([
+						'id' => $synonym->id,
+						'words' => $synonym->words,
+						'synonym' => $synonym,
+					]);
+					return false;
 				}
 			}
 		});
 
-		return $foundWord;
+		return $foundSynonym;
 	}
 
 	private function generateWordObjects($words)

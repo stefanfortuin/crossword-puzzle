@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Synonym;
 use App\Models\Word;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Http;
@@ -48,24 +49,27 @@ class PuzzleWordJob implements ShouldQueue
 			return;
 		}
 
-		$words = collect();
-		$current_letter_amount = null;
+		$current_word = Word::create([
+			'word' => $this->word,
+		]);
 
 		foreach ($rows as $index => $row) {
 			if($index % 2 == 0){
-				preg_match("/(?P<number>\d+) letters/", $row->textContent, $matches);
-				$current_letter_amount = $matches['number'];
+				continue;
 			}
 			else{
-				$exploded_words = explode(" ", $row->textContent);
-				$words->put($current_letter_amount, $exploded_words);
+				$exploded_synonyms = explode(" ", $row->textContent);
+				foreach ($exploded_synonyms as $synonym) {
+					$current_synonym = Synonym::firstOrCreate([
+						'synonym' => $synonym,
+					]);
+
+					$current_synonym->words()->attach($current_word->id);
+				}
 			}
 		}
 
-		Word::create([
-			'word' => $this->word,
-			'synonyms' => $words,
-		]);
+		
 
     }
 }

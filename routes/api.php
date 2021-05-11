@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Word;
+use App\Models\Synonym;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,32 +20,28 @@ Route::get('/word', function (Request $request) {
 
 	$lettersToCheck = collect($request->input('letters_to_check'));
 	$length = $request->input('length');
-	$foundWord = null;
+	$foundSynonym = null;
 
-	Word::inRandomOrder()->chunk(5000, function ($words) use ($length, $lettersToCheck, &$foundWord) {
-		foreach ($words as $word) {
-			foreach ($word->synonyms as $lengths) {
-				foreach ($lengths as $synonym) {
-					if (strlen($synonym) != $length)
-						continue;
+	Synonym::inRandomOrder()->chunk(500, function ($synonyms) use ($length, $lettersToCheck, &$foundSynonym) {
+		foreach ($synonyms as $synonym) {
+			if ($length != null && strlen($synonym->synonym) != $length)
+				continue;
 
-					$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
-						return substr($synonym, $position, 1) == $letter;
-					});
+			$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
+				return substr($synonym->synonym, $position, 1) == $letter;
+			});
 
 
-					if ($matched) {
-						$foundWord = collect([
-							'id' => $word->id,
-							'word' => $word->word,
-							'synonym' => $synonym,
-						]);
-						return false;
-					}
-				}
+			if ($matched) {
+				$foundSynonym = collect([
+					'id' => $synonym->id,
+					'word' => $synonym->words->random(),
+					'synonym' => $synonym->synonym,
+				]);
+				return false;
 			}
 		}
 	});
 
-	return $foundWord;
+	return $foundSynonym;
 });

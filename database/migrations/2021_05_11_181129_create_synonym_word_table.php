@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWordsTable extends Migration
+class CreateSynonymWordTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,14 @@ class CreateWordsTable extends Migration
      */
     public function up()
     {
-        Schema::create('words', function (Blueprint $table) {
+        Schema::create('synonym_word', function (Blueprint $table) {
             $table->id();
-			$table->string('word');
+			$table->unsignedBigInteger('synonym_id');
+			$table->unsignedBigInteger('word_id');
             $table->timestamps();
+
+			$table->foreign('synonym_id')->references('id')->on('synonyms');
+			$table->foreign('word_id')->references('id')->on('words');
         });
     }
 
@@ -27,6 +31,6 @@ class CreateWordsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('words');
+        Schema::dropIfExists('synonym_word');
     }
 }

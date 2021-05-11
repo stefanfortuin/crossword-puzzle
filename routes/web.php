@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Word;
+use App\Models\Synonym;
 use App\Http\Resources\WordResource;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PuzzleWordGenerator;
@@ -16,8 +17,8 @@ use App\Http\Controllers\PuzzleWordGenerator;
 |
 */
 
-Route::get('/words', function (){
-	return Word::count();
+Route::get('/synonyms', function (){
+	return Synonym::count();
 });
 
 Route::get('/random/{amount}', function ($amount){

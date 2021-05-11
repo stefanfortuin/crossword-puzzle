@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Word extends Model
+class Synonym extends Model
 {
     use HasFactory;
 
@@ -16,8 +16,13 @@ class Word extends Model
 		'updated_at'
 	];
 
-	public function synonyms(){
-		return $this->belongsToMany(Synonym::class, 'synonym_word');
+	public function getLetterAmountAttirubte()
+	{
+		return strlen($this->synonym);
 	}
 
+	public function words()
+	{
+		return $this->belongsToMany(Word::class, 'synonym_word');
+	}
 }
