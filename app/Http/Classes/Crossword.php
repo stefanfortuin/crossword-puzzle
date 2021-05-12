@@ -51,7 +51,7 @@ class Crossword
 
 	private function fillBoard()
 	{
-		$firstWord = Word::inRandomOrder()->first();
+		$firstWord = Synonym::inRandomOrder()->first();
 		$word = new WordBoard($firstWord);
 		$this->placeWordAtPosition(0, 0, $word->longest_synonym, 'right');
 
