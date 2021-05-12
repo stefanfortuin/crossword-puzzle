@@ -3,8 +3,9 @@
 namespace App\Http\Classes;
 
 use App\Models\Word;
-use App\Http\Classes\WordBoard;
 use App\Models\Synonym;
+use App\Http\Classes\WordBoard;
+use Illuminate\Support\Facades\DB;
 
 class Crossword
 {
@@ -89,26 +90,13 @@ class Crossword
 		$lettersToCheck = collect($lettersToCheck);
 		$foundSynonym = null;
 
-		Synonym::inRandomOrder()->chunk(200, function ($synonyms) use ($length, $lettersToCheck, &$foundSynonym) {
-			foreach ($synonyms as $synonym) {
-				if ($length != null && strlen($synonym) != $length)
-					continue;
-
-				$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
-					return substr($synonym, $position, 1) == $letter;
-				});
-
-
-				if ($matched) {
-					$foundSynonym = collect([
-						'id' => $synonym->id,
-						'words' => $synonym->words,
-						'synonym' => $synonym,
-					]);
-					return false;
-				}
-			}
+		$whereClausesLetters = $lettersToCheck->map(function ($letter, $position) {
+			return [DB::raw("SUBSTR(synonym, ".$position.",1)"), '=', $letter];
 		});
+	
+		$whereClausesLetters->add([DB::raw("LENGTH(synonym)"), '=', $length]);
+	
+		$foundSynonym = Synonym::inRandomOrder()->where($whereClausesLetters->toArray())->with('words')->get();
 
 		return $foundSynonym;
 	}
