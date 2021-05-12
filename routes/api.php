@@ -3,6 +3,7 @@
 use App\Models\Word;
 use App\Models\Synonym;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,26 +23,13 @@ Route::get('/word', function (Request $request) {
 	$length = $request->input('length');
 	$foundSynonym = null;
 
-	Synonym::inRandomOrder()->chunk(500, function ($synonyms) use ($length, $lettersToCheck, &$foundSynonym) {
-		foreach ($synonyms as $synonym) {
-			if ($length != null && strlen($synonym->synonym) != $length)
-				continue;
-
-			$matched = $lettersToCheck->every(function ($letter, $position) use ($synonym) {
-				return substr($synonym->synonym, $position, 1) == $letter;
-			});
-
-
-			if ($matched) {
-				$foundSynonym = collect([
-					'id' => $synonym->id,
-					'word' => $synonym->words->random(),
-					'synonym' => $synonym->synonym,
-				]);
-				return false;
-			}
-		}
+	$whereClausesLetters = $lettersToCheck->map(function ($letter, $position) {
+		return [DB::raw("SUBSTR(synonym, ".$position.",1)"), '=', $letter];
 	});
+
+	$whereClausesLetters->add([DB::raw("LENGTH(synonym)"), '=', $length]);
+
+	$foundSynonym = Synonym::inRandomOrder()->where($whereClausesLetters->toArray())->with('words')->get();
 
 	return $foundSynonym;
 });
