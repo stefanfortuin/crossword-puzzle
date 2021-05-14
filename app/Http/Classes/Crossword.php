@@ -19,46 +19,72 @@ class Crossword
 	{
 		$this->rows = $rows;
 		$this->cols = $cols;
-		$this->createEmptyBoard();
+		$this->words = collect();
+		$this->createBoard();
+		$this->startCoordinates = $this->getAllWordStartCoordinates();
 
-		$this->fillBoard();
+		// $this->generate();
 	}
 
 	private function placeWordAtPosition($x, $y, $word, $direction)
 	{
-		$wordLength = strlen($word);
+		$wordLength = strlen($word->synonym);
+
+		$word->x = $x;
+		$word->y = $y;
+		$word->direction = $direction;
 
 		for ($i = 0; $i < $wordLength; $i++) {
 			switch ($direction) {
 				case 'right':
-					$this->board[$x][$y + $i] = substr($word, $i, 1);
+					$this->board[$x][$y + $i] = substr($word->synonym, $i, 1);
 					break;
 				case 'down':
-					$this->board[$x + $i][$y] = substr($word, $i, 1);
+					$this->board[$x + $i][$y] = substr($word->synonym, $i, 1);
 					break;
 			}
 		}
 	}
 
-	private function createEmptyBoard()
+	private function createBoard()
 	{
 		for ($x = 0; $x < $this->rows; $x++) {
 			for ($y = 0; $y < $this->cols; $y++) {
-				$this->board[$x][$y] = '';
+				if (mt_rand(0,99) < 25)
+					$this->board[$x][$y] = '#';
+				else
+					$this->board[$x][$y] = '-';
 			}
 		}
 	}
 
-	private function fillBoard()
+	private function generate()
 	{
+		//place the first word on the board
 		$firstWord = Synonym::inRandomOrder()->first();
 		$word = new WordBoard($firstWord);
-		$this->placeWordAtPosition(0, 0, $word->longest_synonym, 'right');
+		$this->placeWordAtPosition(0, 0, $word, 'right');
 
-		for ($i = 0; $i < $this->cols; $i++) {
-			if ($i % 2 == 0) {
+		//
+
+	
+	}
+
+	private function getAllWordStartCoordinates()
+	{
+		$coordinates = collect();
+
+		for ($x = 0; $x < $this->rows; $x++) {
+			for ($y = 0; $y < $this->cols; $y++) {
+					if ($this->board[$x][$y] == '#')
+					{
+						$this->board[$x+1][$y] = '@';
+						$this->board[$x][$y+1] = '@';
+					}
 			}
 		}
+
+		return $coordinates;
 	}
 
 	private function getLettersAtPositionInCol($col)

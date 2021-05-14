@@ -4,15 +4,9 @@ namespace App\Http\Classes;
 
 class WordBoard
 {
-    public $word;
-    public $synonyms;
-
-    public $chosenSynonym;
-
-    public $row;
-    public $col;
+    public $x;
+    public $y;
     public $direction;
-
 
     public function __construct($word)
     {
@@ -21,27 +15,21 @@ class WordBoard
         }
     }
 
-    public function findSynonymWithLettersAtPositionsWithLength($maxLength, $lettersToCheck)
-    {
-        $lettersToCheck = collect($lettersToCheck);
+	public function getLetterCoordinates()
+	{
+		$coordinates = collect();
 
-        foreach ($this->synonyms as $length) {
-            foreach ($length as $synonym) {
-                if(strlen($synonym) > $maxLength)
-                    continue;
+		foreach ($this->synonym as $i => $letter) {
+			switch ($this->direction) {
+				case 'right':
+					$coordinates->put($this->x.','.$this->y+$i, $letter);
+					break;
+				case 'down':
+					$coordinates->put($this->x+$i.','.$this->y, $letter);
+					break;
+			}
+		}
 
-                $matched = $lettersToCheck->every(function($letter, $position) use ($synonym) {
-                    return substr($synonym, $position, 1) == $letter;
-                });
-
-                if($matched)
-                    return collect([
-                        'word' => $this->word,
-                        'synonym' => $synonym,
-                    ]);
-            }
-        }
-
-        return null;
-    }
+		return $coordinates;
+	}
 }
